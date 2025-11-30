@@ -198,6 +198,15 @@ class AgentState(BaseModelWithConfig):
         ]
 
     @property
+    def has_sufficient_knowledge(self) -> bool:
+        """ Check if we have good knowledge to respond. """
+        return (
+            self.knowledge_confidence is not None
+            and self.knowledge_confidence >= 0.7
+            and len(self.retrieved_documents) > 0
+        )
+
+    @property
     def has_high_confidence_response(self) -> bool:
         """ Check if response has high confidence. """
         return (
