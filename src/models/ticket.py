@@ -7,7 +7,7 @@ Tickets represent the entire lifecycle of a customer support interaction.
 from multiprocessing import Value
 from optparse import Option
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from unicodedata import category
 from uuid import UUID
 
@@ -239,7 +239,7 @@ class Ticket(BaseModelWithConfig, IndentifierMixin, TimestampMixin):
 
         # Calculate resolution time
         self.resolution_time = (
-            datetime.utc - self.created_at
+            datetime.now(timezone.utc) - self.created_at
         ).total_seconds()
 
         self.touch()

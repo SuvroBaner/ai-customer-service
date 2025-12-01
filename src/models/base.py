@@ -4,8 +4,9 @@ Base models and enums for AI Customer Service System.
 This module provides foundational data structures used across all agents.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
+#from time import timezone
 from typing import Optional
 from uuid import UUID, uuid4
 
@@ -105,14 +106,14 @@ class TimestampMixin(BaseModel):
     Mixin for models that need timestamps.
     """
 
-    created_at: datetime = Field(default_factory = datetime.utc)
-    updated_at: datetime = Field(default_factory = datetime.utc)
+    created_at: datetime = Field(default_factory = lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory = lambda: datetime.now(timezone.utc))
 
     def touch(self) -> None:
         """ 
         Update the updated_at timestamp.
         """
-        self.updated_at = datetime.utc
+        self.updated_at = datetime.now(timezone.utc)
 
 class IndentifierMixin(BaseModel):
     """

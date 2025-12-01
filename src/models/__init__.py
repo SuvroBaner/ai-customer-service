@@ -25,7 +25,7 @@ from .message import (
     MessageUpdate,
 )
 
-from customer import (
+from .customer import (
     Customer,
     CustomerCreate,
     CiustomerUpdate,

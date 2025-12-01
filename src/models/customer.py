@@ -5,10 +5,10 @@ Maintains customer profiles and interaction history.
 """
 
 import email
-from time import timezone
+#from time import timezone
 from token import OP
 from typing import Optional, Dict, Any, List
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pydantic import Field, EmailStr, field_validator
 
@@ -38,7 +38,7 @@ class Customer(BaseModelWithConfig, IndentifierMixin, TimestampMixin):
         tier: Account tier for prioritization
         phone: Optional phone number
         language: Preferred language (ISO 639-1 code)
-        timezone: IANA timezone identifier
+        timezone_std: IANA timezone identifier
         metadata: Additional customer data (CRM ID, etc.)
         lifetime_tickets: Total number of tickets created
         satisfaction_score: Average CSAT score (0-100)
@@ -66,7 +66,7 @@ class Customer(BaseModelWithConfig, IndentifierMixin, TimestampMixin):
         max_length = 2,
         description = "ISO 639-1 language code"
     )
-    timezone: str = Field(
+    timezone_std: str = Field(
         default = "UTC",
         description = "IANA timezone identifier"
     )
@@ -151,7 +151,7 @@ class Customer(BaseModelWithConfig, IndentifierMixin, TimestampMixin):
         Increment lifetime ticket counter.
         """
         self.lifetime_tickets += 1
-        self.last_interaction = datetime.utc
+        self.last_interaction = datetime.now(timezone.utc)
         self.touch()
 
     def update_satisfaction(self, new_score: float) -> None:
@@ -203,7 +203,7 @@ class CustomerCreate(BaseModelWithConfig):
     tier: str = Field(default = CustomerTier.FREE)
     phone: Optional[str] = None
     language: str = Field(default = "en")
-    timezone: str = Field(default = "UTC")
+    timezone_std: str = Field(default = "UTC")
     metadata: Dict[str, Any] = Field(default_factory = dict)
 
 class CiustomerUpdate(BaseModelWithConfig):
@@ -215,7 +215,7 @@ class CiustomerUpdate(BaseModelWithConfig):
     tier: Optional[str] = None
     phone: Optional[str] = None
     language: Optional[str] = None
-    timezone: Optional[str] = None
+    timezone_std: Optional[str] = None
     satisfaction_score: Optional[float] = Field(None, ge = 0.0, le = 100.0)
     notes: Optional[List[str]] = None
     metadata: Optional[Dict[str, Any]] = None

@@ -4,9 +4,7 @@ Agent state model for LangGraph workflows.
 This is the core state object that flows through the agent graph.
 """
 
-from tkinter import NO
 from typing import List, Dict, Any, Optional
-from unicodedata import category
 from uuid import UUID
 
 from pydantic import Field
@@ -165,12 +163,12 @@ class AgentState(BaseModelWithConfig):
         description = "Current workflow step"
     )
     agent_history: List[str] = Field(
-        default_factory = dict,
-        description = "Additional metadata"
+        default_factory = list,
+        description = "Agents that have processed this state."
     )
     metadata: Dict[str, Any] = Field(
         default_factory = dict,
-        description = ""Additional metadata
+        description = "Additional metadata"
     )
     error: Optional[str] = Field(
         None,
