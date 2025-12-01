@@ -261,7 +261,7 @@ class Ticket(BaseModelWithConfig, IndentifierMixin, TimestampMixin):
         Returns:
             List of dicts with "role" and "content"
         """
-        return [msg.to_llm_format for msg in self.messages]
+        return [msg.to_llm_format() for msg in self.messages]
 
     def calculate_metrics(self) -> Dict[str, Any]:
         """

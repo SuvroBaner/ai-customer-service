@@ -264,7 +264,7 @@ class AgentState(BaseModelWithConfig):
         context: Optional[Dict[str, Any]] = None
     ) -> None:
         """ Trigger escalation to human agent. """
-        self.should_escalate = reason
+        self.should_escalate = True
         self.escalation_reason = reason
         if context:
             self.escalation_context.update(context)

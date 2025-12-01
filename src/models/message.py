@@ -123,7 +123,7 @@ class Message(BaseModelWithConfig, IndentifierMixin, TimestampMixin):
             Dict with 'role' and 'content' keys.
         """
         return {
-            "role": self.role.value,
+            "role": self.role if isinstance(self.role, str) else self.role.value,
             "content": self.content
         }
 

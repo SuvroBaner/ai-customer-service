@@ -6,7 +6,6 @@ Tests all model creation, validation, and methods.
 
 """
 
-from sre_parse import NEGATE
 import uuid
 import pytest
 from datetime import datetime
@@ -179,7 +178,7 @@ class TestTicket:
         customer_id = uuid4()
         ticket = Ticket(
             customer_id = customer_id,
-            subject = "Password reset needed."
+            subject = "Password reset needed"
         )
 
         assert ticket.customer_id == customer_id
@@ -312,7 +311,7 @@ class TestAgentState:
             ticket_id = ticket_id,
             customer_id = customer_id,
             current_message = "Test",
-            priority = TicketPriority.HIGH
+            priority = TicketPriority.HIGH,
             sentiment = SentimentScore.NEGATIVE,
             knowledge_confidence = 0.8,
             retrieved_documents = [{"content": "test"}]
@@ -354,7 +353,7 @@ class TestAgentState:
         state.add_retrieved_document(
             content = "How to reset password",
             score = 0.95,
-            metadata = ["source": "kb_article_123"]
+            metadata = {"source": "kb_article_123"}
         )
 
         assert len(state.retrieved_documents) == 1
