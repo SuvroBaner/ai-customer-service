@@ -99,6 +99,8 @@ When adding new documentation:
 
 ## 🚀 Contributing to Documentation
 
+Before writing documentation, please review our [Documentation Strategy](../DOCUMENTATION_STRATEGY.md).
+
 ### Adding New Documentation
 
 1. Create the document:

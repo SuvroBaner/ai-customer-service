@@ -134,7 +134,13 @@ ai-customer-service/
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Development Guide](docs/development.md).
+We welcome contributions! Please review these guides before contributing:
+
+- **[Documentation Strategy](DOCUMENTATION_STRATEGY.md)** - How we document code
+- **[Development Guide](docs/development.md)** - Development workflow
+- **[Testing Guide](docs/testing.md)** - How to write tests
+
+### Contribution Process
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
