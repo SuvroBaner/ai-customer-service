@@ -28,6 +28,7 @@ dependencies = [
     # Vector Store & Embeddings
     "sentence-transformers>=2.3.0",
     "pinecone-client>=3.0.0",
+    "chromadb>=0.4.0",
     
     # Database
     "sqlalchemy>=2.0.0",
