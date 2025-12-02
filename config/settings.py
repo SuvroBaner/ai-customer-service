@@ -330,4 +330,245 @@ class AgentSettings(BaseSettings):
     """ Agent behaviour configuration . """
 
     # Escalation settings
-    
+    enable_escalation: bool = Field(
+        default = True,
+        description = "Enable automatic escalation to humans"
+    )
+    escalation_confidence: float = Field(
+        default = 0.8,
+        ge = 0.0,
+        le = 1.0,
+        description = "Confidence threshold for escalation"
+    )
+    max_resolution_attempts: int = Field(
+        default = 3,
+        ge = 1,
+        description = "Max attempts before escalating"
+    )
+
+    # Knowledge retrieval
+    knowledge_confidence_threshold: float = Field(
+        default = 0.7,
+        ge = 0.0,
+        le = 1.0,
+        description = "Minimum confidence for using knowledge"
+    )
+
+    # Response generation
+    max_response_length: int = Field(
+        default = 500,
+        ge = 50,
+        le = 2000,
+        description = "Maximum response length in words"
+    )
+    require_citations: bool = Field(
+        default = True,
+        description = "Require citations in resoponse"
+    )
+
+    model_config = SettingsConfigDict(
+        env_prefix = "AGENTS__",
+        case_sensitive = False
+    )
+
+# ============================================================================
+# API Configuration
+# ============================================================================
+
+class APISettings(BaseSettings):
+    """ API server configuration. """
+
+    host: str = Field(
+        default = "0.0.0.0", 
+        description = "API server host"
+    )
+    port: int = Field(
+        default = 8000,
+        ge = 1024,
+        le = 65535,
+        description = "API server port"
+    )
+    workers: int = Field(
+        default = 4,
+        ge = 1,
+        description = "Number of worker processes"
+    )
+    reload: bool = Field(
+        default = False,
+        description = "Enable auto-reload (dev only)"
+    )
+
+    # CORS
+    allowed_origins: list[str] = Field(
+        default = ["http://localhost:3000", "http://localhost:8000"],
+        description = "Allowed CORS origins"
+    )
+
+    # Rate limiting
+    rate_limit_per_minute: int = Field(
+        default = 60,
+        ge = 1,
+        description = "Requests per minute per IP"
+    )
+    rate_limit_per_hour: int = Field(
+        default = 1000,
+        ge = 1,
+        description = "Requests per hour per IP"
+    )
+
+    model_config = SettingsConfigDict(
+        env_prefix = "API__",
+        case_sensitive = False
+    )
+
+# ============================================================================
+# Logging Configuration
+# ============================================================================
+
+class LoggingSettings(BaseSettings):
+    """ Logging configuration. """
+
+    level: str = Field(
+        default = "INFO",
+        description = "Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)"
+    )
+    format: str = Field(
+        default = "json",
+        description = "Log format (json or text)"
+    )
+    log_file: Optional[str] = Field(
+        None,
+        description = "Log file path (None for stdout only)"
+    )
+
+    # What to log
+    log_sql: bool = Field(
+        default = False,
+        description = "Log SQL queries"
+    )
+    log_requests: bool = Field(
+        default = True,
+        description = "Log API requests"
+    )
+    log_llm_calls: bool = Field(
+        default = True,
+        description = "Log LLM API calls"
+    )
+
+    model_config = SettingsConfigDict(
+        env_prefix = "LOGGING__",
+        case_sensitive = False
+    )
+
+# ============================================================================
+# Main Settings
+# ============================================================================
+
+class Settings(BaseSettings):
+    """
+    Main application settings.
+
+    All settings can be overridden via environment variables using the double
+    underscore notation. (e.g. LLM__CLAUDE__API_KEY).
+
+    Example:
+        export LLM__CLAUDE__API_KEY="sk-..."
+        export DATABASE__URL="postgressql://..."
+    """
+
+    # Application
+    app_name: str = Field(
+        default = "AI Customer Service",
+        description = "Application name"
+    )
+    app_version: str = Field(
+        default = "0.1.0",
+        description = "Application version"
+    )
+    environment: Environment = Field(
+        default = False,
+        description = "Runtime environment"
+    )
+    debug: bool = Field(
+        default = False,
+        description = "Debug mode"
+    )
+    secret_key: SecretStr = Field(
+        default = "change-me-in-production",
+        description = "Secret key for encryption"
+    )
+
+    # Component Settings
+    llm: LLMSettings
+    database: DatabaseSettings = Field(default_factory = DatabaseSettings)
+    redis: RedisSettings = Field(default_factory = RedisSettings)
+    vector_db: VectorDBSettings
+    agents: AgentSettings = Field(default_factory = AgentSettings)
+    api: APISettings = Field(default_factory = APISettings)
+    logging: LoggingSettings = Field(default_factory = LoggingSettings)
+
+    # Paths
+    root_dir: Path = Field(
+        default_factory = lambda: Path(__file__).parent.parent,
+        description = "Project root directory"
+    )
+    data_dir: Path = Field(
+        default_factory = lambda: Path(__file__).parent.parent,
+        description = "Project root directory"
+    )
+    data_dir: Path = Field(
+        default_factory = lambda: Path(__file__).parent.parent / "data",
+        description = "Data directory"
+    )
+
+    model_config = SettingsConfigDict(
+        env_file = ".env",
+        env_file_encoding = "utf-8",
+        env_nested_delimiter = "__",
+        case_sensitive = False,
+        extra = "ignore"
+    )
+
+    @field_validator('debug', mode = 'after')
+    @classmethod
+    def validate_debug_mode(cls, v, info):
+        """ Warn if debug is enabled in production. """
+        environment = info.data.get('environment')
+        if v and environment == Environment.PRODUCTION:
+            import warnings
+            warnings.warn("Debug mode is enabled in production environment")
+        return v
+
+    @property
+    def is_development(self) -> bool:
+        """ Check if running in development mode."""
+        return self.environment == Environment.DEVELOPMENT
+
+    @property
+    def is_production(self) -> bool:
+        """ Check if running in production mode. """
+        return self.environment == Environment.PRODUCTION
+
+    def get_llm_client(self) -> str:
+        """ Get primary LLM provider. """
+        if self.llm.provider == LLMProvider.OPENAI:
+            return "openai"
+        return "claude" # Claude is default for BOTH and CLAUDE
+
+# ===================================================================
+# SETTINGS INSTANCE
+# ===================================================================
+
+# Global settings instance - import this throughout the app
+settings = Settings()
+
+# Convinience function for dependency injection.
+def get_settings() -> Settings:
+    f"""
+    Get settings instance (useful for FastAPI dependency injection).
+
+    Example:
+        @app.get("/health")
+        def health(settings: Settings = Depends(get_settings)):
+            return {'status': "ok", "environment": settings.environment}
+    """
