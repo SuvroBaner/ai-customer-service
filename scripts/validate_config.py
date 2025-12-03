@@ -108,7 +108,7 @@ def validate_settings() -> bool:
     # Agents
     print(f"\n🤖 Agents:")
     print(f"   Escalation enabled: {settings.agents.enable_escalation}")
-    print(f"   Confidence threshold: {settings.agents.escalation_confidence_threshold}")
+    print(f"   Confidence threshold: {settings.agents.escalation_threshold}")
     print(f"   Max attempts: {settings.agents.max_resolution_attempts}")
     
     # API

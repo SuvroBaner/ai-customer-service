@@ -74,7 +74,7 @@ class PromptLoader:
         """Reload prompts from file (useful in development)."""
         self._prompts = None
         # Clear LRU cache
-        self.get_prompt.cache_clear()
+        self.get_cached_prompt.cache_clear()
     
     def get_prompt(self, path: str) -> str:
         """

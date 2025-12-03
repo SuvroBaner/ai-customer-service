@@ -101,7 +101,6 @@ class TestSettings:
         redis = settings.redis
         assert redis.url is not None
         assert redis.max_connections > 0
-        assert isinstance(redis.decode_responses, bool)
     
     def test_vector_db_settings(self):
         """Test vector database configuration."""
@@ -117,7 +116,7 @@ class TestSettings:
         """Test agent configuration."""
         agents = settings.agents
         assert isinstance(agents.enable_escalation, bool)
-        assert 0 <= agents.escalation_confidence_threshold <= 1.0
+        assert 0 <= agents.escalation_threshold <= 1.0
         assert agents.max_resolution_attempts > 0
         assert agents.max_response_length > 0
     

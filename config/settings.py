@@ -223,14 +223,11 @@ class RedisSettings(BaseSettings):
         ge = 1,
         description = "Socket connect timeout in seconds"
     )
-    decode_response: bool = Field(
-        default = True,
-        description = "Decode byte responses to strings"
-    )
 
     model_config = SettingsConfigDict(
         env_prefix = "REDIS__",
-        case_sensitive = False
+        case_sensitive = False,
+        extra = "ignore"
     )
 
 # ===========================================================
@@ -307,20 +304,18 @@ class VectorDBSettings(BaseSettings):
         case_sensitive = False
     )
 
-    @field_validator('chormadb', 'qdrant', mode = 'before')
-    @classmethod
-    def validate_provider_config(cls, v, info):
-        """ Ensure the selected provider has configuration. """
-        provider = info.data.get("provider")
-        field_name = info.field_name
-
-        # If this field matches the provider, it must be configured.
-        if provider == VectorDBProvider.CHROMADB and field_name == 'chromadb':
-            return v or ChromaDBSettings()
-        elif provider == VectorDBProvider.QDRANT and field_name == 'qdrant':
-            if v is None:
-                raise ValueError("Qdrant configuration required when using Qdrant provider")
-        return v
+    def model_post_init(self, __context) -> None:
+        """Validate provider configuration after initialization."""
+        # Ensure the selected provider has configuration
+        if self.provider == VectorDBProvider.CHROMADB:
+            if self.chromadb is None:
+                self.chromadb = ChromaDBSettings()
+        elif self.provider == VectorDBProvider.QDRANT:
+            if self.qdrant is None:
+                raise ValueError(
+                    "Qdrant configuration required when VECTOR_DB__PROVIDER=qdrant. "
+                    "Please set VECTOR_DB__QDRANT__URL and other Qdrant settings."
+                )
 
 # ============================================================================
 # Agent Configuration
@@ -334,7 +329,7 @@ class AgentSettings(BaseSettings):
         default = True,
         description = "Enable automatic escalation to humans"
     )
-    escalation_confidence: float = Field(
+    escalation_threshold: float = Field(
         default = 0.8,
         ge = 0.0,
         le = 1.0,
@@ -347,7 +342,7 @@ class AgentSettings(BaseSettings):
     )
 
     # Knowledge retrieval
-    knowledge_confidence_threshold: float = Field(
+    knowledge_threshold: float = Field(
         default = 0.7,
         ge = 0.0,
         le = 1.0,
@@ -368,7 +363,8 @@ class AgentSettings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_prefix = "AGENTS__",
-        case_sensitive = False
+        case_sensitive = False,
+        extra="ignore"
     )
 
 # ============================================================================
@@ -564,7 +560,7 @@ settings = Settings()
 
 # Convinience function for dependency injection.
 def get_settings() -> Settings:
-    f"""
+    """
     Get settings instance (useful for FastAPI dependency injection).
 
     Example:
@@ -572,3 +568,4 @@ def get_settings() -> Settings:
         def health(settings: Settings = Depends(get_settings)):
             return {'status': "ok", "environment": settings.environment}
     """
+    return settings
