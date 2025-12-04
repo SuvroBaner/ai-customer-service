@@ -19,7 +19,7 @@ class TestLLMMessage:
         msg = LLMMessage(role = "user", content = "hello")
 
         assert msg.role == "user"
-        assert msg.content == "Hello"
+        assert msg.content == "hello"
 
 class TestLLMResponse:
     """ Tests for LLMResponse dataclass. """
@@ -211,7 +211,7 @@ class TestLLMClient:
             assert called_messages[0].content == "You are a helpful assistant"
             assert called_messages[1].role == "user"
 
-    def test_token_counting(self):
+    async def test_token_counting(self):
         """Test token counting."""
         with patch('src.llm.client.settings') as mock_settings:
             mock_settings.get_llm_client.return_value = "claude"

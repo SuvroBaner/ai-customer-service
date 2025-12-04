@@ -82,9 +82,14 @@ class ClaudeSettings(BaseSettings):
 
     @field_validator('api_key', mode='after')
     @classmethod
-    def validate_api_key(cls, v: SecretStr) -> SecretStr:
+    def validate_api_key(cls, v: SecretStr, info) -> SecretStr:
         """Validate Claude API key format."""
         key = v.get_secret_value()
+
+        # Skip validation in test mode
+        import os
+        if os.getenv('SKIP_API_KEY_VALIDATION') == 'true':
+            return v
         
         if not key or not key.strip():
             raise ValueError("Claude API key cannot be empty")
@@ -145,11 +150,16 @@ class OpenAISettings(BaseSettings):
         case_sensitive = False
     )
 
-    @field_validator('api_key', mode='after')
+    @field_validator('api_key', mode = 'after')
     @classmethod
-    def validate_api_key(cls, v: SecretStr) -> SecretStr:
+    def validate_api_key(cls, v: SecretStr, info) -> SecretStr:
         """Validate OpenAI API key format."""
         key = v.get_secret_value()
+
+        # Skip validation in test mode
+        import os
+        if os.getenv('SKIP_API_KEY_VALIDATION') == 'true':
+            return v
         
         if not key or not key.strip():
             raise ValueError("OpenAI API key cannot be empty")
