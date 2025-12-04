@@ -13,7 +13,7 @@ Usage:
 """
 
 from .client import LLMClient, get_llm_client
-from .providers import LLMResponse, LLMMessage, BaseProvider
+from .base import LLMResponse, LLMMessage, BaseProvider
 
 __all__ = [
     "LLMClient",

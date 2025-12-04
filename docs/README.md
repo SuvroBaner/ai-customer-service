@@ -7,6 +7,7 @@ Welcome to the AI Customer Service Automation documentation!
 | Document | Status | Completeness |
 |----------|--------|--------------|
 | [Configuration Guide](configuration.md) | ✅ Complete | 100% |
+| [LLM Client System](llm.md) | ✅ Complete | 100% |
 | [Data Models](models.md) | ✅ Complete | 100% |
 | [Architecture Overview](architecture.md) | ⏳ Pending | 0% |
 | [Agent Design](agents/) | ⏳ Pending | 0% |
@@ -48,6 +49,7 @@ Each major component has documentation in two places:
 |-----------|----------------|----------------|-------|
 | Configuration | [config/README.md](../config/README.md) | [configuration.md](configuration.md) | [tests/unit/test_config.py](../tests/unit/test_config.py) |
 | Data Models | [src/models/README.md](../src/models/README.md) | [models.md](models.md) | [tests/unit/test_models.py](../tests/unit/test_models.py) |
+| LLM Client | [src/llm/README.md](../src/llm/README.md) | [llm.md](llm.md) | [tests/unit/test_llm_client.py](../tests/unit/test_llm_client.py) |
 | Agents | ⏳ Coming soon | ⏳ Coming soon | ⏳ Coming soon |
 | API | ⏳ Coming soon | ⏳ Coming soon | ⏳ Coming soon |
 
