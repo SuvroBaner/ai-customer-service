@@ -80,6 +80,29 @@ class ClaudeSettings(BaseSettings):
         case_sensitive = False
     )
 
+    @field_validator('api_key', mode='after')
+    @classmethod
+    def validate_api_key(cls, v: SecretStr) -> SecretStr:
+        """Validate Claude API key format."""
+        key = v.get_secret_value()
+        
+        if not key or not key.strip():
+            raise ValueError("Claude API key cannot be empty")
+        
+        # Check for placeholders
+        placeholders = ["xxxxx", "your-key", "placeholder", "change-me"]
+        if any(p in key.lower() for p in placeholders):
+            raise ValueError(
+                "Claude API key appears to be a placeholder. "
+                "Set LLM__CLAUDE__API_KEY in .env"
+            )
+
+        # Validate format
+        if not key.startswith("sk-ant-"):
+            raise ValueError("Invalid Claude API key format (should start with 'sk-ant-')")
+        
+        return v      
+
 class OpenAISettings(BaseSettings):
     """ OpenAI configuration """
 
@@ -121,6 +144,27 @@ class OpenAISettings(BaseSettings):
         env_prefix = "LLM__OPENAI__",
         case_sensitive = False
     )
+
+    @field_validator('api_key', mode='after')
+    @classmethod
+    def validate_api_key(cls, v: SecretStr) -> SecretStr:
+        """Validate OpenAI API key format."""
+        key = v.get_secret_value()
+        
+        if not key or not key.strip():
+            raise ValueError("OpenAI API key cannot be empty")
+        
+        placeholders = ["xxxxx", "your-key", "placeholder", "change-me"]
+        if any(p in key.lower() for p in placeholders):
+            raise ValueError(
+                "OpenAI API key appears to be a placeholder. "
+                "Set LLM__OPENAI__API_KEY in .env"
+            )
+        
+        if not key.startswith("sk-"):
+            raise ValueError("Invalid OpenAI API key format (should start with 'sk-')")
+        
+        return v
 
 class LLMSettings(BaseSettings):
     """ LLM provider configuration. """
